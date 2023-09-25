@@ -1,5 +1,5 @@
 
-import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios, { AxiosError } from "axios";
 
 export type Shortened = {
@@ -16,14 +16,13 @@ export type ShortenPayload = {
   alias: string;
 }
 const initialState: ShortenURL = {
-  loading: true,
+  loading: false,
   data: {
     shortened_url: ""
   },
   error: false,
   errorMessage: "",
 }
-let message = "";
 
 const token = localStorage.getItem("authtoken_np")
 export const shortenURL = createAsyncThunk<Shortened>("url/shorten", async (data: any, { rejectWithValue }) => {
@@ -38,14 +37,23 @@ export const shortenURL = createAsyncThunk<Shortened>("url/shorten", async (data
     })
     return response.data
   } catch (e) {
+    //@ts-ignore
     return rejectWithValue(e.response.data.message)
   }
 
 });
+
 const shortenSlice = createSlice({
   name: "shorten",
   initialState,
-  reducers: {},
+  reducers: {
+    resetState: (state) => {
+      state.error = false
+      state.loading = false
+      state.data.shortened_url = ""
+      state.errorMessage = ""
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(shortenURL.pending, (state) => {
@@ -59,10 +67,11 @@ const shortenSlice = createSlice({
         state.loading = false;
         state.error = true;
         //@ts-ignore
-        state.errorMessage = action.payload
+        state.errorMessage = action.payload ?? "Something went wrong"
       })
 
   }
 })
 
+export const { resetState } = shortenSlice.actions
 export default shortenSlice.reducer

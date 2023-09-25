@@ -1,5 +1,6 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { X509Certificate } from "crypto";
 
 
 export type APIResponse = {
@@ -28,9 +29,14 @@ const initialState: GetAll = {
   error: false,
   errorMessage: "",
 }
-export const getAll = createAsyncThunk<APIResponse[]>("url/all", async () => {
-  const response = await axios.get("http://localhost:9000/v1/master")
-  return response.data
+//@ts-ignore
+export const getAll = createAsyncThunk<APIResponse[]>("url/all", async (data, { rejectWithValue }) => {
+  try {
+    const response = await axios.get(`http://localhost:9000/v1/master?limit=${data.limit}&page=${data.page}`)
+    return response.data
+  } catch (e) {
+    return rejectWithValue(e.response.data.message)
+  }
 });
 
 const apiSlice = createSlice({
@@ -41,10 +47,12 @@ const apiSlice = createSlice({
     builder
       .addCase(getAll.pending, (state) => {
         state.loading = true;
+        state.error = false;
       })
       .addCase(getAll.fulfilled, (state, action: PayloadAction<APIResponse[]>) => {
         state.data = action.payload;
         state.loading = false;
+        state.error = false;
       })
       .addCase(getAll.rejected, (state) => {
         state.loading = false;

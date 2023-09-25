@@ -3,11 +3,13 @@ import { configureStore } from '@reduxjs/toolkit'
 import sessionReducer from "./reducers/session"
 import allapiReducer from "./reducers/api"
 import shortenReducer from "./reducers/createalias"
+import deleteReducer from "./reducers/deleteURL"
 export const store = configureStore({
   reducer: {
     session: sessionReducer,
     allapi: allapiReducer,
-    shorten: shortenReducer
+    shorten: shortenReducer,
+    deleteURL: deleteReducer,
   }
 })
 
