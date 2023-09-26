@@ -2,16 +2,11 @@ import { ShortenPayload, resetState, shortenURL } from "@/app/redux/reducers/cre
 import { RootState } from "@/app/redux/store"
 import { ChangeEvent, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { FadeLoader } from "react-spinners"
-import Toast from "./toast"
-import Link from "next/link"
-import { reset } from "@/app/redux/reducers/deleteURL"
-import { getAll } from "@/app/redux/reducers/api"
+
 
 const Shortener = () => {
   const dispatch = useDispatch()
   const shortener = useSelector((state: RootState) => state.shorten)
-  const deleteState = useSelector((state: RootState) => state.deleteURL)
 
   const [shortenPayload, setShortenPayload] = useState<ShortenPayload>({
     url: "",
@@ -33,15 +28,13 @@ const Shortener = () => {
 
   }
   useEffect(() => {
-    setTimeout(() => {
-      //@ts-ignore
-      dispatch(getAll({ limit: 5, page: 1 }))
-    }, 500);
-    setTimeout(() => {
-      dispatch(reset())
-    }, 2500);
+    if (!shortener.loading) {
+      setTimeout(() => {
+        dispatch(resetState())
+      }, 3000)
+    }
+  }, [shortener.loading])
 
-  }, [deleteState.deleted])
 
   return (
     <>
@@ -56,24 +49,24 @@ const Shortener = () => {
       <div className="px-4">
         {
           shortener.error ?
-            <Toast alertType="error" alertMessage={shortener.errorMessage} /> :
+            <div className="toast toast-end">
+              <div className="alert alert-error">
+                <span>{shortener.errorMessage}</span>
+              </div>
+            </div> :
             <></>
         }
         {
           !shortener.error && shortener.data.shortened_url !== "" ?
             <>
-              <Toast alertType="success" alertMessage={` Link has been generated: ${shortener.data.shortened_url}`} />
+              <div className="toast toast-end">
+                <div className="alert alert-success">
+                  <span>Link has been generated: {shortener.data.shortened_url}</span>
+                </div>
+              </div>
             </> :
             <></>
         }
-        <div>
-          {
-            deleteState.deleted ?
-              <Toast alertType="success" alertMessage={deleteState.data.message} />
-              :
-              <></>
-          }
-        </div>
       </div>
       {
         shortener.loading ?

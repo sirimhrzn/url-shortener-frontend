@@ -1,9 +1,8 @@
 import { getAll } from "@/app/redux/reducers/api";
-import { deleteURL } from "@/app/redux/reducers/deleteURL";
+import { deleteURL, reset } from "@/app/redux/reducers/deleteURL";
 import { RootState } from "@/app/redux/store";
-import { FC, useDebugValue, useEffect } from "react";
+import { FC, useDebugValue, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Toast from "../toast";
 
 
 
@@ -26,6 +25,14 @@ const DeleteModal: FC<DeleteModal> = ({ modalId, uri }) => {
     //@ts-ignore
     dispatch(getAll({ limit: 5, page: 1 }))
   }
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (!deleteState.loading) {
+        dispatch(reset())
+      }
+    }, 3000)
+  }, [deleteState.loading])
   return (
     <>
       <dialog id={modalId} className="modal">
@@ -49,6 +56,27 @@ const DeleteModal: FC<DeleteModal> = ({ modalId, uri }) => {
           }
         </div>
       </dialog >
+      {
+        deleteState.deleted ?
+          <div className="toast toast-end">
+            <div className="alert alert-info">
+              <span>{deleteState.data.message}</span>
+            </div>
+          </div>
+          :
+          <></>
+      }
+      {
+        deleteState.error ?
+          <div className="toast toast-end">
+            <div className="alert alert-info">
+              <span>{deleteState.errorMessage}</span>
+            </div>
+          </div>
+          :
+          <></>
+      }
+
     </>
 
   )

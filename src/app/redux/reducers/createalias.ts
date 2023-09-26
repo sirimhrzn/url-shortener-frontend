@@ -27,7 +27,6 @@ const initialState: ShortenURL = {
 const token = localStorage.getItem("authtoken_np")
 export const shortenURL = createAsyncThunk<Shortened>("url/shorten", async (data: any, { rejectWithValue }) => {
   try {
-    console.log(data)
     const response = await axios.post("http://localhost:9000/v1", JSON.stringify(data), {
       headers: {
         "Authorization": token,
