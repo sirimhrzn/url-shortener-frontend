@@ -30,7 +30,7 @@ const AllTable = () => {
   const paginate = (index: number) => {
     const data = { ...pagination }
     data.page = pagination.page + index
-    if (api.data.length < 5 && index == 1) {
+    if (api.data !== null && api.data.length < 5 && index == 1) {
       return
     }
     if (api.data == null && index == 1) {
@@ -115,7 +115,7 @@ const AllTable = () => {
                 </div>
                 : <></>}
             {
-              !api.error ?
+              !api.error && api.data !== null ?
                 <>
                   {
                     api.data.map((value, index) => (

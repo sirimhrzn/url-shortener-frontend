@@ -19,7 +19,7 @@ const Dashboard = () => {
         <div className='flex flex-row m-1 p-4'>
           <AllTable />
         </div>
-        <div id="details">
+        <div id="details p-4 m-1">
           <URLDetail />
         </div>
       </div>

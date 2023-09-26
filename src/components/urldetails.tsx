@@ -38,7 +38,7 @@ const URLDetail = () => {
       },
       title: {
         display: true,
-        text: 'Chart.js Bar Chart',
+        text: 'Count of alias',
       },
     },
   };
@@ -53,7 +53,7 @@ const URLDetail = () => {
     labels,
     datasets: [
       {
-        label: 'Dataset 1',
+        label: 'Clicks',
         data: val,
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
       },
@@ -61,12 +61,16 @@ const URLDetail = () => {
   };
 
   useEffect(() => {
-    const countriesArray = Object.entries(api.data)
+    //sort in descending
+    const countriesArray = Object.entries(api.data).sort((a, b) => {
+      return b[1] - a[1];
+    });
     const key = countriesArray.map(([key]) => key)
     const value = countriesArray.map(([, value]) => value)
     setLabels(key)
     setVal(value)
   }, [api.data])
+
   useEffect(() => {
     //@ts-ignore
     dispatch(getCountryByAlias("meow"))
@@ -74,8 +78,8 @@ const URLDetail = () => {
 
   return (
     <>
-      <div className="bg-white w-full">
-        <div className="h-[20rem] w-[50%] max-w-2xl p-4">
+      <div className="bg-white w-full rounded-xl">
+        <div className="h-[20rem] w-[50%] max-w-3xl p-4">
           {
             api.dataLoaded ?
               <Bar options={options} data={data} />
