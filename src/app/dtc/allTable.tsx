@@ -1,7 +1,7 @@
 import { RootState } from "@/app/redux/store"
 import { useDispatch, useSelector } from "react-redux"
 import Link from 'next/link'
-import { useState, useEffect } from "react"
+import { useState, useEffect, ChangeEvent } from "react"
 import { getAll } from "@/app/redux/reducers/api"
 import { RiRefreshLine } from "react-icons/ri"
 import { FiEdit } from "react-icons/fi"
@@ -9,12 +9,16 @@ import { RiDeleteBin5Fill } from "react-icons/ri"
 import DeleteModal from "@/components/modal/deleteModal"
 import { resetState } from "../redux/reducers/createalias"
 import EditModal from "@/components/modal/editModal"
+import { AiFillEye } from 'react-icons/ai'
+import { FaSortDown } from 'react-icons/fa'
+import { MdOutlineCopyAll } from 'react-icons/md'
+import { GrSort } from 'react-icons/gr'
 import { resetUpdateURL, updateURL } from "../redux/reducers/updateURL"
+import { getCountryByAlias } from "../redux/reducers/countryCountbyAlias"
 const AllTable = () => {
   const dispatch = useDispatch()
 
   const api = useSelector((state: RootState) => state.allapi)
-
   // updating alias api 
   const updateState = useSelector((state: RootState) => state.updateURL)
 
@@ -44,10 +48,56 @@ const AllTable = () => {
 
   const [tableEdit, setTableEdit] = useState<boolean>(false)
   const [reload, setReload] = useState<boolean>(false)
-
   const [currentAlias, setCurrentAlias] = useState<string>("")
   const [alias, setAlias] = useState<string>("")
   const [url, setUrl] = useState<string>("")
+  const [hidden, setHidden] = useState<boolean>(false)
+
+
+  const [sortBy, setSortBy] = useState("htl")
+  const sort = (sort: string) => {
+    setSortBy(sort)
+    setHidden(true)
+  }
+  type Toast = {
+    enable: boolean;
+    type: "success" | "error";
+    message: string;
+  }
+  const [toast, setToast] = useState<Toast>({
+    enable: false,
+    type: "error",
+    message: ""
+  })
+
+  const clickToCopy = async (url: string): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(url)
+      setToast({
+        enable: true,
+        type: "success",
+        message: "Link copied to clipboard"
+      })
+    } catch (e) {
+      setToast({
+        enable: true,
+        type: "error",
+        message: "Failed to copy url"
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (toast.enable) {
+      setTimeout(() => {
+        setToast({
+          enable: false,
+          type: "error",
+          message: ""
+        })
+      }, 2500)
+    }
+  }, [toast.enable])
 
   type UpdatePayload = {
     alias: string | undefined;
@@ -55,7 +105,6 @@ const AllTable = () => {
     current_alias: string;
 
   }
-
   const [updatePayload, setUpdatePayload] = useState<UpdatePayload>({
     alias: "",
     url: "",
@@ -72,7 +121,6 @@ const AllTable = () => {
       url: url,
       current_alias: currentAlias
     })
-    console.log(updatePayload)
   }, [url, alias])
   useEffect(() => {
     //@ts-ignore
@@ -88,9 +136,9 @@ const AllTable = () => {
   }, [updateState.loading])
 
   return (
-    <div id='table1' className='w-full space-y-2'>
-      <div className="overflow-x-auto">
-        <table className="table bg-white  shadow-3xl">
+    <div id='table1' className='w-full space-y-2' >
+      <div className="overflow-x-auto rounded-lg">
+        <table className="table bg-white rounded-lg shadow-3xl">
           <thead>
             <tr>
               <th>Alias</th>
@@ -120,7 +168,20 @@ const AllTable = () => {
                   {
                     api.data.map((value, index) => (
                       <tr key={index}>
-                        <td title={value.shortened_url}> <Link href={value.shortened_url}>{value.alias}</Link></td>
+
+                        <td title={value.shortened_url} className="flex flex-row justify-between"> <Link href={value.shortened_url}>
+                          {value.alias}</Link>
+                          <div className="flex flex-row join">
+                            <button className="btn rounded-full join-item text-lg" onClick={() => dispatch(getCountryByAlias(value.alias))}>
+                              <AiFillEye />
+                            </button>
+                            <button className="btn rounded-full join-item text-lg" onClick={() =>
+                              clickToCopy(value.shortened_url)
+                            }>
+                              <MdOutlineCopyAll />
+                            </button>
+
+                          </div></td>
                         <td><Link href={value.original_url}>{value.original_url}</Link></td>
                         <td>{value.clicks}</td>
                         {
@@ -152,8 +213,8 @@ const AllTable = () => {
           </tbody>
         </table>
       </div>
-      <div className="flex flex-row flex-start">
-        <div className="join">
+      <div className="flex flex-row flex-start  space-x-2">
+        <div className="join my-2 justify-center">
           <button className="join-item btn btn-sm" onClick={() => paginate(-1)}>«</button>
           <button className="join-item btn btn-sm" > {pagination.page}</button>
           <button className="join-item btn btn-sm" onClick={() => paginate(1)}>»</button>
@@ -167,7 +228,23 @@ const AllTable = () => {
           }}>
             <FiEdit height="10" />
           </button>
+          <div className="dropdown dropdown-bottom join-item" onClick={() => setHidden(!hidden)}>
+            <label tabIndex={0} className="btn join-item btn-sm"><GrSort /></label>
+            <ul tabIndex={0} className={`dropdown-content z-[1]  menu p-2 shadow bg-base-100 rounded-box w-52 ${hidden ? 'hidden' : 'block'}`}>
+              <li onClick={(e) => sort(e)}><a>Recent</a></li>
+              <li onClick={(e) => sort(e)}><a>High to Low</a></li>
+              <li onClick={(e) => sort(e)}><a>Low to high</a></li>
+            </ul>
+          </div>
+
         </div>
+        {/*
+        <div className="flex justify-center items-center">
+          <h3 className="text-lg text-white">
+            Total clicks : 120
+          </h3>
+        </div>
+        */}
       </div>
       <div>
         <dialog id="my_modal_1" className="modal">
@@ -219,6 +296,15 @@ const AllTable = () => {
           <div className="toast toast-end">
             <div className="alert alert-error">
               <span>{updateState.errorMessage}</span>
+            </div>
+          </div>
+          : <></>
+      }
+      {
+        toast.enable ?
+          <div className="toast toast-end">
+            <div className={`alert alert-${toast.type}`}>
+              <span>{toast.message}</span>
             </div>
           </div>
           : <></>

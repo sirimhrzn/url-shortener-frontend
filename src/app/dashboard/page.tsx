@@ -6,6 +6,7 @@ import { RootState } from '../redux/store'
 import AllTable from '../dtc/allTable'
 import Shortener from '@/components/shortener'
 import URLDetail from '@/components/urldetails'
+import StatBox from '@/components/statbox'
 const Dashboard = () => {
 
   const dispatch = useDispatch()
@@ -15,11 +16,15 @@ const Dashboard = () => {
       <div className='flex flex-col justify-center w-full '>
         <Shortener />
       </div>
+
+      <div id='second-row' className='flex  flex-col'>
+        <StatBox />
+      </div>
       <div id='second-row' className='flex flex-col'>
-        <div className='flex flex-row m-1 p-4'>
+        <div className='flex flex-row px-4'>
           <AllTable />
         </div>
-        <div id="details p-4 m-1">
+        <div id="details" className='px-4'>
           <URLDetail />
         </div>
       </div>

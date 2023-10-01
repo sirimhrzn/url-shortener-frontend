@@ -14,9 +14,10 @@ export default function DashboardLayout({
     router.refresh()
   }
   //  bg-[#191717]
+  //bg-[#fffafa]
   return (
     <main>
-      <div className="drawer lg:drawer-open bg-[#fffafa]">
+      <div className="drawer bg-[#191717] lg:drawer-open ">
         <input id="my-drawer" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
           {children}

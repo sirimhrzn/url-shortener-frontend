@@ -25,7 +25,7 @@ const EditModal: FC<EditModal> = ({ modalId, uri, alias }) => {
     document.getElementById(modalId)?.close()
     await dis()
     //@ts-ignore
-    dispatch(getAll({ limit: 5, page: 1 }))
+    //dispatch(getAll({ limit: 5, page: 1 }))
   }
   const handleOnchange = (e) => {
     setNew_Alias(e.target.value)

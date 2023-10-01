@@ -28,7 +28,7 @@ const token = localStorage.getItem("authtoken_np")
 export const getCountryByAlias = createAsyncThunk<APIResponse>("country/alias", async (data: any, { rejectWithValue }) => {
   try {
 
-    const response = await axios.get(`http://localhost:9000/v1/count/country/${data}`, {
+    const response = await axios.get(`http://localhost:9000/v1/count/country?alias=${data}`, {
       headers: {
         "Authorization": token,
         "Content-Type": "application/json"
@@ -51,6 +51,10 @@ const getByCountrySlice = createSlice({
       state.errorMessage = ""
       state.error = false
       state.loading = false
+    },
+    setError: (state) => {
+      state.dataLoaded = false
+      state.error = true
     }
   },
   extraReducers: (builder) => {
@@ -76,5 +80,5 @@ const getByCountrySlice = createSlice({
   }
 })
 
-export const { resetGetByCountryState } = getByCountrySlice.actions
+export const { resetGetByCountryState, setError } = getByCountrySlice.actions
 export default getByCountrySlice.reducer
